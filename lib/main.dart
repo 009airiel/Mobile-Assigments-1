@@ -5,9 +5,7 @@ import 'screens/payment_discount_screen.dart';
 import 'screens/confirmation_review_screen.dart';
 
 void main() {
-  // IMPORTANT: For the images to show up (even as placeholders), you must
-  // create a folder named 'assets' in the root of your project.
-  // Although the mock code doesn't load real images, the setup is required.
+
   runApp(const RestaurantBookingApp());
 }
 
