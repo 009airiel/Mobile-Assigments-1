@@ -22,7 +22,7 @@ class RestaurantBookingApp extends StatelessWidget {
       title: 'Restaurant Package Booking',
       theme: ThemeData(
         // Using a soft color for the primary theme
-        primarySwatch: Colors.lightBlue, 
+        primarySwatch: Colors.lightBlue,
         primaryColor: primarySoftColor,
         hintColor: accentColor,
         scaffoldBackgroundColor: const Color(0xFFF7F9FC), // Very light grey/white background
@@ -59,12 +59,14 @@ class RestaurantBookingApp extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
         ),
         
+        // --- CORRECTED CARD THEME PLACEMENT ---
         cardTheme: CardTheme(
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0), // Rounded cards
           ),
         ),
+        // -------------------------------------
         
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
