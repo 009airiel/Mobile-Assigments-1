@@ -39,7 +39,7 @@ class RestaurantBookingApp extends StatelessWidget {
             backgroundColor: primarySoftColor,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0), // Cute: Highly rounded buttons
+              borderRadius: BorderRadius.circular(15.0), 
             ),
             elevation: 2,
           ),
@@ -59,14 +59,14 @@ class RestaurantBookingApp extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
         ),
         
-        // --- FIXED: Changed CardTheme to CardThemeData ---
+        // --- FIXED: Replacing BorderRadius.circular with explicit const constructor ---
         cardTheme: const CardThemeData( 
           elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0), // Rounded cards
+          shape: RoundedRectangleBorder( 
+            borderRadius: BorderRadius.all(Radius.circular(15.0)), // Use all(Radius.circular) to resolve const conflict
           ),
         ),
-        // ------------------------------------------------
+        // ------------------------------------------------------------------------------
         
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
