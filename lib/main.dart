@@ -59,8 +59,8 @@ class RestaurantBookingApp extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
         ),
         
-        // --- CORRECTED CARD THEME PLACEMENT ---
-        cardTheme: CardTheme(
+        // --- CORRECTED CARD THEME PLACEMENT (Added 'const' for cleanliness) ---
+        cardTheme: const CardTheme( 
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0), // Rounded cards
