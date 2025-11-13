@@ -5,7 +5,7 @@ import 'screens/payment_discount_screen.dart';
 import 'screens/confirmation_review_screen.dart';
 
 void main() {
-
+  //fffff//
   runApp(const RestaurantBookingApp());
 }
 
@@ -27,7 +27,9 @@ class RestaurantBookingApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -37,7 +39,8 @@ class RestaurantBookingApp extends StatelessWidget {
         '/': (context) => const UserDetailsScreen(), // Page 1
         '/menu_selection': (context) => const MenuSelectionScreen(), // Page 2
         '/payment': (context) => const PaymentAndDiscountScreen(), // Page 3
-        '/confirmation': (context) => const ConfirmationAndReviewScreen(), // Page 4
+        '/confirmation': (context) =>
+            const ConfirmationAndReviewScreen(), // Page 4
       },
     );
   }
