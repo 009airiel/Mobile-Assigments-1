@@ -127,7 +127,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  title: Text("Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'Choose Date'}"),
+                  // Removed const here due to runtime variable
+                  title: Text("Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'Choose Date'}"), 
                   trailing: Icon(Icons.date_range, color: Theme.of(context).hintColor),
                   onTap: () async {
                     final DateTime? picked = await showDatePicker(
@@ -156,7 +157,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                        title: Text("Start: ${_booking.startTime?.format(context) ?? 'Time'}"),
+                        // Removed const here due to runtime variable
+                        title: Text("Start: ${_booking.startTime?.format(context) ?? 'Time'}"), 
                         trailing: Icon(Icons.access_time, color: Theme.of(context).hintColor),
                         onTap: () => _selectTime(context),
                       ),
