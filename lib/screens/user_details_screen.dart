@@ -13,7 +13,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   final BookingData _booking = BookingData();
   final List<int> durationOptions = [3, 4, 5];
 
-  // Helper function to pick time
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -28,7 +27,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   void _calculateEndTime(TimeOfDay startTime, int duration) {
-    if (startTime == null) return;
     final now = DateTime.now();
     DateTime startDateTime =
         DateTime(now.year, now.month, now.day, startTime.hour, startTime.minute);
@@ -39,7 +37,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   void _submitDetails() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Navigate to Page 2, passing the booking data
+      // Navigate to Page 3, passing the booking data
       Navigator.pushNamed(context, '/menu_selection', arguments: _booking);
     }
   }
@@ -47,50 +45,64 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _booking.reservationDate = DateTime.now().add(const Duration(days: 7)); // Default a week later
+    _booking.reservationDate = DateTime.now().add(const Duration(days: 7));
     _booking.startTime = TimeOfDay.now();
     _calculateEndTime(_booking.startTime!, _booking.durationHours);
+  }
+
+  Widget _buildTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Reservation Details')),
+      appBar: AppBar(title: const Text('2. Reservation Details')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // --- User Details ---
-              const Text('Personal Contact', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              _buildTitle('Contact Information'),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Full Name'),
                 validator: (value) => value!.isEmpty ? 'Name is required' : null,
                 onSaved: (value) => _booking.name = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Address'),
-                validator: (value) => value!.isEmpty ? 'Address is required' : null,
-                onSaved: (value) => _booking.address = value!,
+                decoration: const InputDecoration(labelText: 'Email Address'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
+                onSaved: (value) => _booking.email = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Phone Number'),
                 keyboardType: TextInputType.phone,
                 validator: (value) => value!.length < 10 ? 'Enter a valid phone number' : null,
                 onSaved: (value) => _booking.phoneNo = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
-                onSaved: (value) => _booking.email = value!,
+                decoration: const InputDecoration(labelText: 'Address'),
+                validator: (value) => value!.isEmpty ? 'Address is required' : null,
+                onSaved: (value) => _booking.address = value!,
               ),
               
-              const SizedBox(height: 25),
-              // --- Reservation Details ---
-              const Text('Reservation Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              _buildTitle('Booking Requirements'),
               
               // Guests
               TextFormField(
@@ -106,87 +118,118 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 },
                 onSaved: (value) => _booking.numberOfGuests = int.parse(value!),
               ),
+              const SizedBox(height: 10),
 
               // Date Picker
-              ListTile(
-                title: Text("Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'Choose Date'}"),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: _booking.reservationDate ?? DateTime.now().add(const Duration(days: 1)),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2028),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _booking.reservationDate = picked;
-                    });
-                  }
-                },
+              Card(
+                elevation: 0,
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  title: Text("Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'Choose Date'}"),
+                  trailing: Icon(Icons.date_range, color: Theme.of(context).hintColor),
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _booking.reservationDate ?? DateTime.now().add(const Duration(days: 1)),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2028),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _booking.reservationDate = picked;
+                      });
+                    }
+                  },
+                ),
               ),
+              const SizedBox(height: 10),
 
-              // Time Picker
-              ListTile(
-                title: Text("Start Time: ${_booking.startTime?.format(context) ?? 'Choose Time'}"),
-                trailing: const Icon(Icons.access_time),
-                onTap: () => _selectTime(context),
-              ),
-
-              // Duration and End Time Display
+              // Time Picker and Duration
               Row(
                 children: [
-                  const Text("Duration: "),
-                  DropdownButton<int>(
-                    value: _booking.durationHours,
-                    items: durationOptions.map((int value) {
-                      return DropdownMenuItem<int>(
-                        value: value,
-                        child: Text('$value hours'),
-                      );
-                    }).toList(),
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        _booking.durationHours = newValue!;
-                        if (_booking.startTime != null) {
-                          _calculateEndTime(_booking.startTime!, newValue);
-                        }
-                      });
-                    },
+                  Expanded(
+                    child: Card(
+                      elevation: 0,
+                      margin: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                        title: Text("Start: ${_booking.startTime?.format(context) ?? 'Time'}"),
+                        trailing: Icon(Icons.access_time, color: Theme.of(context).hintColor),
+                        onTap: () => _selectTime(context),
+                      ),
+                    ),
                   ),
-                  const Spacer(),
-                  Text("End Time: ${_booking.endTime?.format(context) ?? '--'}"),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: DropdownButton<int>(
+                      value: _booking.durationHours,
+                      icon: Icon(Icons.timer, color: Theme.of(context).hintColor),
+                      underline: const SizedBox(),
+                      items: durationOptions.map((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text('$value hours'),
+                        );
+                      }).toList(),
+                      onChanged: (int? newValue) {
+                        setState(() {
+                          _booking.durationHours = newValue!;
+                          if (_booking.startTime != null) {
+                            _calculateEndTime(_booking.startTime!, newValue);
+                          }
+                        });
+                      },
+                    ),
+                  ),
                 ],
               ),
+              const SizedBox(height: 10),
               
+              // End Time Display
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Expected End Time: ${_booking.endTime?.format(context) ?? '--'} (Based on ${_booking.durationHours} hours)",
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              ),
+
               // Additional Requests
+              const SizedBox(height: 15),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Additional Requests (e.g., Decoration, Birthday)'),
+                maxLines: 3,
                 onSaved: (value) => _booking.additionalRequests = value ?? '',
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
               // --- Submit Button ---
               Center(
-                child: ElevatedButton(
-                  onPressed: _submitDetails,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitDetails,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      elevation: 5,
+                    ),
+                    child: const Text('Choose Menu Package', style: TextStyle(fontSize: 18)),
                   ),
-                  child: const Text('Continue to Menu', style: TextStyle(fontSize: 18)),
                 ),
               ),
-              
-              const SizedBox(height: 20),
-              // --- Display User Information (Partial requirement demo) ---
-              const Text('--- User Information Display (for validation) ---', style: TextStyle(color: Colors.grey)),
-              Text('Guests: ${_booking.numberOfGuests}'),
-              Text('Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'N/A'}'),
-              Text('Duration: ${_booking.durationHours} hours'),
             ],
           ),
         ),
       ),
     );
-  }//endoflines
+  }
 }

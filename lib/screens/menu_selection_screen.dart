@@ -15,19 +15,44 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
   void _showPackageDetails(BuildContext context, MenuPackage package) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
       builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
+        return Padding(
+          padding: const EdgeInsets.all(30),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(package.name, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 10),
-              Text('Price per Guest: RM${package.pricePerGuest.toStringAsFixed(2)}'),
-              const SizedBox(height: 10),
-              Text(package.description),
+              Center(
+                child: Container(
+                  width: 50,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
+              Text(
+                package.name,
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'RM${package.pricePerGuest.toStringAsFixed(2)} per guest',
+                style: const TextStyle(fontSize: 18, color: Colors.green),
+              ),
+              const SizedBox(height: 15),
+              Text(package.description, style: TextStyle(color: Colors.grey.shade700)),
+              const SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -36,7 +61,10 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
                     });
                     Navigator.pop(context);
                   },
-                  child: const Text('Select This Package'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  child: const Text('Select This Package', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
@@ -54,21 +82,18 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
       return;
     }
 
-    // Update the booking data with selection results
     booking.selectedPackage = _selectedPackage;
     booking.hasAdditionalMenu = _hasAdditionalMenu;
-
-    // Navigate to Page 3
     Navigator.pushNamed(context, '/payment', arguments: booking);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve the BookingData passed from Page 1
     final booking = ModalRoute.of(context)!.settings.arguments as BookingData;
+    const Color accentColor = Color(0xFFF48FB1); // Soft Pink Accent
 
     return Scaffold(
-      appBar: AppBar(title: const Text('2. Choose Your Package')),
+      appBar: AppBar(title: const Text('3. Choose Your Package')),
       body: Column(
         children: [
           Expanded(
@@ -78,64 +103,89 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
                 final package = mockPackages[index];
                 final isSelected = package == _selectedPackage;
 
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.all(8),
-                  color: isSelected ? Colors.deepPurple.shade50 : Colors.white,
-                  child: ListTile(
-                    leading: GestureDetector(
-                      onTap: () => _showPackageDetails(context, package),
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(8),
+                return GestureDetector(
+                  onTap: () => _showPackageDetails(context, package),
+                  child: Card(
+                    elevation: isSelected ? 8 : 2, // Highlight selected card
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      side: isSelected ? BorderSide(color: accentColor, width: 3) : BorderSide.none,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: ListTile(
+                        leading: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: isSelected ? accentColor.withOpacity(0.4) : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.dinner_dining,
+                              color: isSelected ? Colors.white : Colors.grey.shade700,
+                            ),
+                          ),
                         ),
-                        child: Center(child: Text(package.imageUrl.split('/').last.split('.').first.toUpperCase())), // Mock Image Placeholder
+                        title: Text(
+                          package.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          'RM${package.pricePerGuest.toStringAsFixed(2)} per guest\n${package.description.split('.').first}.',
+                          maxLines: 2,
+                        ),
+                        trailing: isSelected
+                            ? Icon(Icons.check_circle_rounded, color: accentColor, size: 30)
+                            : TextButton(
+                                onPressed: () => setState(() => _selectedPackage = package),
+                                child: const Text('View/Select'),
+                              ),
+                        isThreeLine: true,
                       ),
                     ),
-                    title: Text(package.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('RM${package.pricePerGuest.toStringAsFixed(2)} per guest'),
-                    trailing: isSelected
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : OutlinedButton(
-                            onPressed: () => setState(() => _selectedPackage = package),
-                            child: const Text('Select'),
-                          ),
-                    onTap: () => _showPackageDetails(context, package),
                   ),
                 );
               },
             ),
           ),
           // --- Additional Menu Option ---
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Include Additional Menu (RM10/guest)', style: TextStyle(fontSize: 16)),
-                Switch(
-                  value: _hasAdditionalMenu,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _hasAdditionalMenu = value;
-                    });
-                  },
-                ),
-              ],
+          Card(
+            margin: const EdgeInsets.all(16.0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Include Additional Menu (RM10/guest)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Switch(
+                    value: _hasAdditionalMenu,
+                    activeColor: accentColor,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _hasAdditionalMenu = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           // --- Navigation Button ---
           Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: ElevatedButton(
-              onPressed: () => _navigateToPayment(booking),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+            padding: const EdgeInsets.only(bottom: 20.0, left: 20, right: 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _navigateToPayment(booking),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  elevation: 5,
+                ),
+                child: const Text('Continue to Payment', style: TextStyle(fontSize: 18)),
               ),
-              child: const Text('Continue to Payment', style: TextStyle(fontSize: 18)),
             ),
           ),
         ],

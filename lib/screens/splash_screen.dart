@@ -5,28 +5,37 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color accentColor = Color(0xFFF48FB1); // Soft Pink Accent
+    
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // --- Logo/Icon Area ---
-              const Icon(
-                Icons.restaurant_menu,
-                size: 100,
-                color: Colors.deepPurple,
+              // --- Logo/Icon Area (Minimalist Focus) ---
+              Container(
+                padding: const EdgeInsets.all(25),
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Icon(
+                  Icons.favorite_border, // Cute icon
+                  size: 70,
+                  color: accentColor,
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               
               // --- Title ---
               Text(
-                'Welcome to Package Booking',
+                'Your Perfect Meal Awaits',
                 style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple.shade800,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -34,33 +43,29 @@ class SplashScreen extends StatelessWidget {
               
               // --- Subtitle/Tagline ---
               Text(
-                'Reserve your perfect dining experience now.',
+                'Book your exclusive package and enjoy a seamless reservation experience.',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: Colors.grey.shade600,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 80),
               
-              // --- Continue Button (New Page 1) ---
+              // --- Continue Button ---
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to the User Details Screen (now the new Page 2)
                     Navigator.pushNamed(context, '/user_details');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: Colors.deepPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    elevation: 5,
                   ),
                   child: const Text(
                     'Continue to Booking',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

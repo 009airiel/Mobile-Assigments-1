@@ -21,7 +21,6 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
   @override
   void initState() {
     super.initState();
-    // Calculations will run after the context is fully built and arguments are available at home
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateTotal();
     });
@@ -37,22 +36,13 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
     final booking = ModalRoute.of(context)!.settings.arguments as BookingData;
     if (booking.selectedPackage == null) return;
 
-    // 1. Calculate Base Cost
     _baseCost = booking.selectedPackage!.pricePerGuest * booking.numberOfGuests;
-
-    // 2. Calculate Additional Cost (RM10/guest)
     _additionalCost = booking.hasAdditionalMenu ? (10.00 * booking.numberOfGuests) : 0.0;
-
-    // 3. Subtotal
     _subtotal = _baseCost + _additionalCost;
 
-    // 4. Discount Application
     _discountAmount = _subtotal * _discountRate;
-
-    // 5. Final Total
     _finalTotal = _subtotal - _discountAmount;
 
-    // Update state and booking data
     setState(() {
       booking.finalTotal = _finalTotal;
       booking.discountCode = _discountController.text;
@@ -61,7 +51,6 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
   }
 
   void _applyDiscount(String code) {
-    // Mock Discount Logic
     if (code.toUpperCase() == 'FLUTTER20') {
       setState(() {
         _discountRate = 0.20; // 20% off
@@ -70,25 +59,38 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
     } else {
       setState(() {
         _discountRate = 0.0;
-        _discountMessage = "Invalid or expired discount code.";
+        _discountMessage = "Invalid code. Try 'FLUTTER20'.";
       });
     }
     _calculateTotal();
   }
 
   void _navigateToConfirmation(BookingData booking) {
-    // Navigate to Page 4
     Navigator.pushNamed(context, '/confirmation', arguments: booking);
   }
 
-  Widget _buildBreakdownRow(String title, double amount, {bool isTotal = false}) {
+  Widget _buildBreakdownRow(String title, double amount, {bool isDiscount = false, bool isTotal = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(fontSize: isTotal ? 20 : 16, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal)),
-          Text('RM${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: isTotal ? 20 : 16, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal, color: isTotal ? Colors.deepPurple : null)),
+          Text(
+            title, 
+            style: TextStyle(
+              fontSize: isTotal ? 20 : 16, 
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+              color: isDiscount ? Theme.of(context).hintColor : (isTotal ? Theme.of(context).primaryColor : Colors.grey.shade700)
+            )
+          ),
+          Text(
+            'RM${amount.toStringAsFixed(2)}', 
+            style: TextStyle(
+              fontSize: isTotal ? 20 : 16, 
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w600, 
+              color: isDiscount ? Theme.of(context).hintColor : (isTotal ? Theme.of(context).primaryColor : Colors.black87)
+            )
+          ),
         ],
       ),
     );
@@ -99,58 +101,85 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
     final booking = ModalRoute.of(context)!.settings.arguments as BookingData;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('3. Payment & Discount')),
+      appBar: AppBar(title: const Text('4. Final Payment')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // --- Discount Code Input ---
-            const Text('Discount Code', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Apply Coupon', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _discountController,
-                    decoration: const InputDecoration(hintText: 'Enter discount code'),
+                    decoration: const InputDecoration(
+                      hintText: 'e.g., FLUTTER20',
+                      isDense: true,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () => _applyDiscount(_discountController.text),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
                   child: const Text('Apply'),
                 ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: Text(_discountMessage, style: TextStyle(color: _discountRate > 0 ? Colors.green : Colors.red, fontStyle: FontStyle.italic)),
+              child: Text(_discountMessage, style: TextStyle(color: _discountRate > 0 ? Colors.green.shade600 : Colors.red.shade400, fontStyle: FontStyle.italic)),
             ),
 
             const SizedBox(height: 30),
-            // --- Payment Breakdown ---
-            const Text('Payment Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            
-            _buildBreakdownRow('Package Base Cost', _baseCost),
-            _buildBreakdownRow('Additional Menu (${booking.numberOfGuests} guests x RM10)', _additionalCost),
-            const Divider(),
-            _buildBreakdownRow('Subtotal', _subtotal, isTotal: true),
-            
-            const Divider(height: 20, thickness: 2),
-            _buildBreakdownRow('Discount Applied (${(_discountRate * 100).toInt()}%)', -_discountAmount, isTotal: true),
-            
-            const Divider(height: 20, thickness: 2, color: Colors.deepPurple),
-            _buildBreakdownRow('TOTAL PAYMENT DUE', _finalTotal, isTotal: true),
+            // --- Payment Breakdown Card (Minimalist Receipt Look) ---
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+                side: BorderSide(color: Colors.grey.shade300, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    _buildBreakdownRow('Package (${booking.selectedPackage!.name})', _baseCost),
+                    _buildBreakdownRow('Service Fee (Additional Menu)', _additionalCost),
+                    const Divider(height: 25),
+                    _buildBreakdownRow('Subtotal', _subtotal),
+                    
+                    // Discount Row
+                    if (_discountRate > 0)
+                      _buildBreakdownRow('Coupon Savings', -_discountAmount, isDiscount: true)
+                    else 
+                      _buildBreakdownRow('Coupon Savings', 0.00),
+
+                    const Divider(height: 30, thickness: 1.5),
+                    _buildBreakdownRow('TOTAL PAYMENT DUE', _finalTotal, isTotal: true),
+                  ],
+                ),
+              ),
+            ),
             
             const Spacer(),
             // --- Navigation Button ---
             Center(
-              child: ElevatedButton(
-                onPressed: () => _navigateToConfirmation(booking),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  backgroundColor: Colors.deepPurple,
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _navigateToConfirmation(booking),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    elevation: 5,
+                    backgroundColor: Theme.of(context).hintColor,
+                  ),
+                  child: const Text('Confirm & Pay Now', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
-                child: const Text('Confirm Booking', style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ),
           ],
