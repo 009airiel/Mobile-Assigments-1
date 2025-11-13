@@ -55,7 +55,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('1. Your Reservation Details')),
+      appBar: AppBar(title: const Text('Your Reservation Details')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
