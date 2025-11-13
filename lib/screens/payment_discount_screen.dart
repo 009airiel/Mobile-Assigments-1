@@ -21,7 +21,7 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
   @override
   void initState() {
     super.initState();
-    // Calculations will run after the context is fully built and arguments are available
+    // Calculations will run after the context is fully built and arguments are available at home
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateTotal();
     });
