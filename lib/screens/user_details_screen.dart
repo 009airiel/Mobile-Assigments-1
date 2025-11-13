@@ -188,5 +188,5 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         ),
       ),
     );
-  }
+  }//endoflines
 }
