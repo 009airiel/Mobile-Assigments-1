@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/booking_data.dart';
+import '../models/booking_data.dart'; // Import the model
 
 class UserDetailsScreen extends StatefulWidget {
   const UserDetailsScreen({super.key});
@@ -9,228 +9,221 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class _UserDetailsScreenState extends State<UserDetailsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final BookingData _booking = BookingData();
-  final List<int> durationOptions = [3, 4, 5];
+  // --- CONTROLLERS ---
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _guestsController = TextEditingController(text: "10");
+  final TextEditingController _specialRequestController = TextEditingController();
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
+  final TextEditingController _dateController = TextEditingController(text: "2025-12-06");
+  final TextEditingController _timeController = TextEditingController(text: "11:21 PM");
+  final TextEditingController _endTimeController = TextEditingController(text: "02:21 AM");
+
+  // --- LOGIC: DATE & TIME PICKERS ---
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialTime: _booking.startTime ?? TimeOfDay.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
     );
-    if (pickedTime != null) {
+    if (picked != null) {
       setState(() {
-        _booking.startTime = pickedTime;
-        _calculateEndTime(pickedTime, _booking.durationHours);
+        _dateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
   }
 
-  void _calculateEndTime(TimeOfDay startTime, int duration) {
-    final now = DateTime.now();
-    DateTime startDateTime =
-        DateTime(now.year, now.month, now.day, startTime.hour, startTime.minute);
-    DateTime endDateTime = startDateTime.add(Duration(hours: duration));
-    _booking.endTime = TimeOfDay.fromDateTime(endDateTime);
-  }
-
-  void _submitDetails() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Navigate to Page 3, passing the booking data
-      Navigator.pushNamed(context, '/menu_selection', arguments: _booking);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _booking.reservationDate = DateTime.now().add(const Duration(days: 7));
-    _booking.startTime = TimeOfDay.now();
-    _calculateEndTime(_booking.startTime!, _booking.durationHours);
-  }
-
-  Widget _buildTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).primaryColor,
-        ),
-      ),
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
     );
+    if (picked != null) {
+      setState(() {
+        _timeController.text = picked.format(context);
+        // Auto-Calculate End Time (+3 Hours)
+        int startMinutes = picked.hour * 60 + picked.minute;
+        int endMinutes = startMinutes + (3 * 60); 
+        if (endMinutes >= 1440) endMinutes -= 1440; 
+        int endHour = endMinutes ~/ 60;
+        int endMinute = endMinutes % 60;
+        final TimeOfDay endTime = TimeOfDay(hour: endHour, minute: endMinute);
+        _endTimeController.text = endTime.format(context);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('2. Reservation Details')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _buildTitle('Contact Information'),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) => value!.isEmpty ? 'Name is required' : null,
-                onSaved: (value) => _booking.name = value!,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text("Reservation Details", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF2196F3), Color(0xFF0D47A1)],
               ),
-              const SizedBox(height: 15),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Email Address'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
-                onSaved: (value) => _booking.email = value!,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-                validator: (value) => value!.length < 10 ? 'Enter a valid phone number' : null,
-                onSaved: (value) => _booking.phoneNo = value!,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Address'),
-                validator: (value) => value!.isEmpty ? 'Address is required' : null,
-                onSaved: (value) => _booking.address = value!,
-              ),
-              
-              _buildTitle('Booking Requirements'),
-              
-              // Guests
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Number of Guests (Min 10)'),
-                keyboardType: TextInputType.number,
-                initialValue: _booking.numberOfGuests.toString(),
-                validator: (value) {
-                  final guests = int.tryParse(value ?? '');
-                  if (guests == null || guests < 10) {
-                    return 'Minimum 10 guests required';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _booking.numberOfGuests = int.parse(value!),
-              ),
-              const SizedBox(height: 10),
-
-              // Date Picker
-              Card(
-                elevation: 0,
-                margin: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  // Removed const here due to runtime variable
-                  title: Text("Date: ${_booking.reservationDate != null ? _booking.reservationDate!.toLocal().toString().split(' ')[0] : 'Choose Date'}"), 
-                  trailing: Icon(Icons.date_range, color: Theme.of(context).hintColor),
-                  onTap: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: _booking.reservationDate ?? DateTime.now().add(const Duration(days: 1)),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2028),
-                    );
-                    if (picked != null) {
-                      setState(() {
-                        _booking.reservationDate = picked;
-                      });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Time Picker and Duration
-              Row(
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Card(
-                      elevation: 0,
-                      margin: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                        // Removed const here due to runtime variable
-                        title: Text("Start: ${_booking.startTime?.format(context) ?? 'Time'}"), 
-                        trailing: Icon(Icons.access_time, color: Theme.of(context).hintColor),
-                        onTap: () => _selectTime(context),
+                  const SizedBox(height: 10),
+                  
+                  // Contact Info
+                  _buildSectionCard(
+                    title: "Contact Information",
+                    icon: Icons.person_outline,
+                    children: [
+                      _buildTextField(label: "Full Name", icon: Icons.face, controller: _nameController),
+                      const SizedBox(height: 15),
+                      _buildTextField(label: "Email Address", icon: Icons.email_outlined, inputType: TextInputType.emailAddress, controller: _emailController),
+                      const SizedBox(height: 15),
+                      _buildTextField(label: "Phone Number", icon: Icons.phone_outlined, inputType: TextInputType.phone, controller: _phoneController),
+                      const SizedBox(height: 15),
+                      _buildTextField(label: "Address", icon: Icons.location_on_outlined, controller: _addressController),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Booking Info
+                  _buildSectionCard(
+                    title: "Booking Requirements",
+                    icon: Icons.calendar_today_outlined,
+                    children: [
+                      _buildTextField(label: "Number of Guests (Min 10)", icon: Icons.groups_outlined, inputType: TextInputType.number, controller: _guestsController),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(child: _buildReadOnlyPicker(label: "Date", value: _dateController.text, icon: Icons.event, onTap: () => _selectDate(context))),
+                          const SizedBox(width: 15),
+                          Expanded(child: _buildReadOnlyPicker(label: "Start Time", value: _timeController.text, icon: Icons.access_time, onTap: () => _selectTime(context))),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(color: const Color(0xFF4FC3F7).withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF4FC3F7).withOpacity(0.3))),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Row(children: [Icon(Icons.timer_outlined, color: Colors.blueGrey), SizedBox(width: 8), Text("Duration: 3 Hours", style: TextStyle(fontWeight: FontWeight.bold))]),
+                            Text("Ends: ${_endTimeController.text}", style: const TextStyle(color: Color(0xFF0D47A1), fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: DropdownButton<int>(
-                      value: _booking.durationHours,
-                      icon: Icon(Icons.timer, color: Theme.of(context).hintColor),
-                      underline: const SizedBox(),
-                      items: durationOptions.map((int value) {
-                        return DropdownMenuItem<int>(
-                          value: value,
-                          child: Text('$value hours'),
+                  const SizedBox(height: 20),
+
+                  // Special Requests
+                  _buildSectionCard(
+                    title: "Special Requests",
+                    icon: Icons.star_border,
+                    children: [
+                      TextFormField(
+                        controller: _specialRequestController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                           labelText: "Additional Requests (e.g. Birthday)",
+                           prefixIcon: const Icon(Icons.edit_note, color: Colors.blueGrey),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  // --- SUBMIT BUTTON ---
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 1. CREATE THE TICKET (BookingData)
+                        BookingData myBooking = BookingData(
+                          name: _nameController.text.isEmpty ? "Guest" : _nameController.text, // Default if empty
+                          email: _emailController.text,
+                          phone: _phoneController.text,
+                          address: _addressController.text,
+                          guests: _guestsController.text,
+                          date: _dateController.text,
+                          time: _timeController.text,
+                          endTime: _endTimeController.text,
+                          specialRequest: _specialRequestController.text,
                         );
-                      }).toList(),
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          _booking.durationHours = newValue!;
-                          if (_booking.startTime != null) {
-                            _calculateEndTime(_booking.startTime!, newValue);
-                          }
-                        });
+
+                        // 2. SEND THE TICKET
+                        // We use 'arguments' to pass the data to the next screen
+                        Navigator.pushNamed(
+                          context, 
+                          '/menu_selection', 
+                          arguments: myBooking, 
+                        );
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6F00),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      ),
+                      child: const Text("Choose Menu Package", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 10),
-              
-              // End Time Display
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  "Expected End Time: ${_booking.endTime?.format(context) ?? '--'} (Based on ${_booking.durationHours} hours)",
-                  style: TextStyle(color: Colors.grey.shade700),
-                ),
-              ),
-
-              // Additional Requests
-              const SizedBox(height: 15),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Additional Requests (e.g., Decoration, Birthday)'),
-                maxLines: 3,
-                onSaved: (value) => _booking.additionalRequests = value ?? '',
-              ),
-
-              const SizedBox(height: 40),
-              // --- Submit Button ---
-              Center(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _submitDetails,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      elevation: 5,
-                    ),
-                    child: const Text('Choose Menu Package', style: TextStyle(fontSize: 18)),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),)
+          ],
         ),
+      
+    );
+  }
+
+  // --- HELPER WIDGETS ---
+  Widget _buildSectionCard({required String title, required IconData icon, required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Icon(icon, color: const Color(0xFF0D47A1)), const SizedBox(width: 10), Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)))]), const Divider(height: 30), ...children]),
+    );
+  }
+
+  Widget _buildTextField({required String label, required IconData icon, required TextEditingController controller, TextInputType inputType = TextInputType.text}) {
+    return TextFormField(
+      controller: controller, 
+      keyboardType: inputType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.blueGrey),
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyPicker({required String label, required String value, required IconData icon, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Icon(icon, size: 16, color: const Color(0xFFFF6F00)), const SizedBox(width: 8), Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600))]), const SizedBox(height: 5), Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))]),
       ),
     );
   }

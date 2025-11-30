@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
-// --- Menu Package Model ---
+// ---------------------------------------------------------------------------
+// PART 1: The Menu Packages (Data for the Screen you are about to build)
+// ---------------------------------------------------------------------------
 class MenuPackage {
   final int id;
   final String name;
@@ -17,48 +18,61 @@ class MenuPackage {
   });
 }
 
-// Mock Data for Packages
+// These are your "Seafood" themed packages
 List<MenuPackage> mockPackages = [
   MenuPackage(
-      id: 1,
-      name: 'Silver Gathering',
-      description: 'Appetizers, 2 main courses, soft drinks. Elegant and classic.',
-      pricePerGuest: 45.00,
-      imageUrl: 'assets/silver.jpg'),
+    id: 1,
+    name: 'Captain\'s Shellout',
+    description: 'Fresh crab, prawns, and mussels served on the table. Spicy Cajun sauce.',
+    pricePerGuest: 45.00,
+    imageUrl: 'assets/shellout.jpg', // Placeholder
+  ),
   MenuPackage(
-      id: 2,
-      name: 'Gold Feast',
-      description: 'All-inclusive buffet, 3 main courses, deluxe dessert. Luxurious.',
-      pricePerGuest: 75.00,
-      imageUrl: 'assets/gold.jpg'),
+    id: 2,
+    name: 'Deep Sea Hotpot',
+    description: 'Premium grouper slices, tiger prawns, and scallops with Tom Yam broth.',
+    pricePerGuest: 75.00,
+    imageUrl: 'assets/hotpot.jpg', // Placeholder
+  ),
   MenuPackage(
-      id: 3,
-      name: 'Platinum Experience',
-      description: 'Premium dining, unlimited courses, and signature cocktails.',
-      pricePerGuest: 120.00,
-      imageUrl: 'assets/platinum.jpg'),
+    id: 3,
+    name: 'Neptune\'s Royal Feast',
+    description: 'Unlimited lobster, Alaskan king crab legs, and oyster platter.',
+    pricePerGuest: 120.00,
+    imageUrl: 'assets/royal.jpg', // Placeholder
+  ),
 ];
 
-// --- Central Booking State Model (Passed between screens) ---
+// ---------------------------------------------------------------------------
+// PART 2: The Booking Data (The "Ticket" passed between screens)
+// ---------------------------------------------------------------------------
 class BookingData {
-  // Page 1: User Details
-  String name = '';
-  String address = '';
-  String phoneNo = '';
-  String email = '';
-  DateTime? reservationDate;
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
-  int durationHours = 3;
-  String additionalRequests = '';
-  int numberOfGuests = 10;
+  // User Details (From Page 1)
+  final String name;
+  final String email;
+  final String phone;
+  final String address;
+  final String guests;
+  final String date;
+  final String time;
+  final String endTime;
+  final String specialRequest;
 
-  // Page 2: Menu Selection
-  MenuPackage? selectedPackage;
-  bool hasAdditionalMenu = false; // Additional menu fixed rate
+  // Menu Selection (For Page 2)
+  MenuPackage? selectedPackage; 
+  bool hasAdditionalMenu = false;
 
-  // Page 3: Payment
-  String discountCode = '';
-  double discountRate = 0.0;
-  double finalTotal = 0.0;
+  BookingData({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.address,
+    required this.guests,
+    required this.date,
+    required this.time,
+    required this.endTime,
+    required this.specialRequest,
+    this.selectedPackage,
+    this.hasAdditionalMenu = false,
+  });
 }

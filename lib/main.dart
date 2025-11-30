@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+// Import all your updated screens
 import 'screens/splash_screen.dart';
 import 'screens/user_details_screen.dart';
 import 'screens/menu_selection_screen.dart';
@@ -14,70 +16,93 @@ class RestaurantBookingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Define a soft, cute color palette
-    const Color primarySoftColor = Color(0xFF81D4FA); // Soft Blue
-    const Color accentColor = Color(0xFFF48FB1); // Soft Pink Accent
+    // --- THEME COLORS ---
+    const Color oceanDark = Color(0xFF0D47A1);
+    const Color accentOrange = Color(0xFFFF6F00);
+    const Color oceanLight = Color(0xFFE3F2FD);
 
     return MaterialApp(
-      title: 'Restaurant Package Booking',
+      debugShowCheckedModeBanner: false,
+      title: 'Ocean Feast Booking',
+
+      // ThemeData cannot be const
       theme: ThemeData(
-        // Using a soft color for the primary theme
-        primarySwatch: Colors.lightBlue,
-        primaryColor: primarySoftColor,
-        hintColor: accentColor,
-        scaffoldBackgroundColor: const Color(0xFFF7F9FC), // Very light grey/white background
-        
+        useMaterial3: true,
+        primaryColor: oceanDark,
+        scaffoldBackgroundColor: Colors.white,
+
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: oceanDark,
+          secondary: accentOrange,
+          surface: oceanLight,
+        ),
+
+        // 1. AppBar Theme
         appBarTheme: const AppBarTheme(
-          backgroundColor: primarySoftColor,
+          backgroundColor: oceanDark,
           foregroundColor: Colors.white,
           centerTitle: true,
-          elevation: 0, // Minimalist: no shadows
+          elevation: 0,
         ),
-        
+
+        // 2. Button Theme
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: primarySoftColor,
+            backgroundColor: accentOrange,
             foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0), 
+              borderRadius: BorderRadius.circular(15.0),
             ),
-            elevation: 2,
+            elevation: 4,
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        
+
+        // 3. Input Fields
         inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.grey.shade50,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0), // Rounded inputs
+            borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: Colors.grey.shade300),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(color: accentColor, width: 2),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide(color: Colors.grey.shade300),
           ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
-        ),
-        
-        // --- FIXED: Replacing BorderRadius.circular with explicit const constructor ---
-        cardTheme: const CardThemeData( 
-          elevation: 4,
-          shape: RoundedRectangleBorder( 
-            borderRadius: BorderRadius.all(Radius.circular(15.0)), // Use all(Radius.circular) to resolve const conflict
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            borderSide: BorderSide(color: oceanDark, width: 2),
           ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          prefixIconColor: Colors.blueGrey,
         ),
-        // ------------------------------------------------------------------------------
-        
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+
+        // 4. Card Theme (fixed)
+        // 4. Card Theme
+cardTheme: CardThemeData(
+  elevation: 4,
+  shadowColor: Colors.black.withOpacity(0.2),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(15.0),
+  ),
+  color: Colors.white,
+),
+
       ),
-      
+
+      // --- ROUTES ---
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
         '/user_details': (context) => const UserDetailsScreen(),
         '/menu_selection': (context) => const MenuSelectionScreen(),
-        '/payment': (context) => const PaymentAndDiscountScreen(),
-        '/confirmation': (context) => const ConfirmationAndReviewScreen(),
+        '/payment_discount': (context) => const PaymentAndDiscountScreen(),
+        '/confirmation_review': (context) => const ConfirmationReviewScreen(),
       },
     );
   }
