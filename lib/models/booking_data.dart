@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // ---------------------------------------------------------------------------
 // PART 1: The Menu Packages (Data for the Screen you are about to build)
 // ---------------------------------------------------------------------------
@@ -25,21 +26,22 @@ List<MenuPackage> mockPackages = [
     name: 'Captain\'s Shellout',
     description: 'Fresh crab, prawns, and mussels served on the table. Spicy Cajun sauce.',
     pricePerGuest: 45.00,
-    imageUrl: 'assets/shellout.jpg', // Placeholder
+    // FIX: Menggunakan nama file yang benar untuk Captain's Shellout
+    imageUrl: 'assets/silver.png', 
   ),
   MenuPackage(
     id: 2,
     name: 'Deep Sea Hotpot',
     description: 'Premium grouper slices, tiger prawns, and scallops with Tom Yam broth.',
     pricePerGuest: 75.00,
-    imageUrl: 'assets/hotpot.jpg', // Placeholder
+    imageUrl: 'assets/deep_sea_hotpot.png', 
   ),
   MenuPackage(
     id: 3,
     name: 'Neptune\'s Royal Feast',
     description: 'Unlimited lobster, Alaskan king crab legs, and oyster platter.',
     pricePerGuest: 120.00,
-    imageUrl: 'assets/royal.jpg', // Placeholder
+    imageUrl: 'assets/neptune_royal_feast.png', 
   ),
 ];
 
@@ -47,7 +49,7 @@ List<MenuPackage> mockPackages = [
 // PART 2: The Booking Data (The "Ticket" passed between screens)
 // ---------------------------------------------------------------------------
 class BookingData {
-  // User Details (From Page 1)
+  // User Details (Immutable data from Page 1)
   final String name;
   final String email;
   final String phone;
@@ -58,9 +60,15 @@ class BookingData {
   final String endTime;
   final String specialRequest;
 
-  // Menu Selection (For Page 2)
+  // Menu Selection (Mutable data for Page 2/3)
   MenuPackage? selectedPackage; 
   bool hasAdditionalMenu = false;
+
+  // Payment Data (Mutable data for Page 3/4)
+  double finalTotal = 0.0;
+  String discountCode = '';
+  double discountRate = 0.0;
+
 
   BookingData({
     required this.name,
