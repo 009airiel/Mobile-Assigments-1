@@ -141,8 +141,6 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
         ),
         child: Column(
           children: [
-            // --- REMOVED IMAGE HEADER HERE ---
-
             // --- SECTION 1: THE PACKAGES GRID VIEW (CATALOG LAYOUT) ---
             Expanded(
               child: Padding(
@@ -211,7 +209,7 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
                                     package.description,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                                    style: TextStyle(fontSize: 11, color: Colors.grey.shade700), // <-- FONT SIZE REDUCED HERE
                                   ),
                                 ],
                               ),
