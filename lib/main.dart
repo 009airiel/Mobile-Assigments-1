@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
 // Import all your updated screens
 import 'screens/splash_screen.dart';
@@ -96,6 +96,44 @@ cardTheme: CardThemeData(
       ),
 
       // --- ROUTES ---
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/user_details': (context) => const UserDetailsScreen(),
+        '/menu_selection': (context) => const MenuSelectionScreen(),
+        '/payment_discount': (context) => const PaymentAndDiscountScreen(),
+        '/confirmation_review': (context) => const ConfirmationReviewScreen(),
+      },
+    );
+  }
+}
+*/
+import 'package:flutter/material.dart';
+
+// Import your theme
+import 'theme/app_theme.dart';
+
+// Import screens
+import 'screens/splash_screen.dart';
+import 'screens/user_details_screen.dart';
+import 'screens/menu_selection_screen.dart';
+import 'screens/payment_discount_screen.dart';
+import 'screens/confirmation_review_screen.dart';
+
+void main() {
+  runApp(const RestaurantBookingApp());
+}
+
+class RestaurantBookingApp extends StatelessWidget {
+  const RestaurantBookingApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Ocean Feast Booking',
+      theme: AppTheme.lightTheme,
+
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
