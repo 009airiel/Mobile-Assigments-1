@@ -586,7 +586,7 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
                     child: ElevatedButton(
                       onPressed: _selectedPackages.isEmpty
                           ? null
-                          : () => _navigateToPayment(bookingData!),
+                          : () => _navigateToPayment(bookingData),
                       child: Text(
                         _selectedPackages.isEmpty
                             ? "Select a Package"
