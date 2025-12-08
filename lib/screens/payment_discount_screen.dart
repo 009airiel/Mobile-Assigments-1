@@ -85,28 +85,39 @@ class _PaymentAndDiscountScreenState extends State<PaymentAndDiscountScreen> {
   }
 
   // --- HELPER WIDGETS ---
-  Widget _buildBreakdownRow(String title, double amount, {bool isDiscount = false, bool isTotal = false}) {
+ Widget _buildBreakdownRow(String title, double amount, {bool isDiscount = false, bool isTotal = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start, 
         children: [
-          Text(
-            title, 
-            style: TextStyle(
-              fontSize: isTotal ? 20 : 16, 
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-              color: isDiscount ? Colors.green : (isTotal ? oceanDark : Colors.grey.shade700)
-            )
+          // --- FIX STARTS HERE ---
+          // We wrap the TITLE in 'Expanded' so it knows to shrink/wrap 
+          // if it hits the price on the right.
+          Expanded(
+            child: Text(
+              title, 
+              style: TextStyle(
+                fontSize: isTotal ? 20 : 16, 
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+                color: isDiscount ? Colors.green : (isTotal ? oceanDark : Colors.grey.shade700)
+              ),
+            ),
           ),
+          // --- FIX ENDS HERE ---
+
+          // Add a small gap between text and price
+          const SizedBox(width: 12),
+
+          // The Price (Do NOT wrap this in Expanded, we want it to stay full size)
           Text(
-            // Format currency (negative sign for discounts)
             '${isDiscount ? "-" : ""}RM${amount.abs().toStringAsFixed(2)}', 
             style: TextStyle(
               fontSize: isTotal ? 20 : 16, 
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w600, 
               color: isDiscount ? Colors.green : (isTotal ? accentOrange : Colors.black87)
-            )
+            ),
           ),
         ],
       ),

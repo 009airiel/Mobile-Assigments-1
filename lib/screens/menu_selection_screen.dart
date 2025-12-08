@@ -150,7 +150,7 @@ class _MenuSelectionScreenState extends State<MenuSelectionScreen> {
                     crossAxisCount: 2, 
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.75, 
+                    childAspectRatio: 0.65, 
                   ),
                   itemCount: mockPackages.length,
                   itemBuilder: (context, index) {
